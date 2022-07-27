@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokemon Card Display</title>
+
+  <link rel="stylesheet" href="font/font_style.css">
+</head>
+<body>
+
+<style>
+  *,
+  *::before,
+  *::after {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    box-sizing: border-box;
+    font-family: sans-serif;
+    color: #121210;
+    overflow: hidden;
+  }
+
+  .container {
+    height: 90vh;
+  }
+
+  .pokemon-select {
+    position: relative;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 450px;
+    height: 60px;
+    font-size: 30px;
+    padding: 0 1em;
+  }
+
+  ::placeholder {
+    color: black;
+    opacity: .1;
+  }
+
+  .card {
+    position: relative;
+    top: 30%;
+    display: flex;
+    justify-content: center;
+    /* margin: 4em; */
+    /* max-width: 90%; */
+    z-index: -2;
+  }
+
+  .card.visible {
+    animation: up 900ms ease-in-out 1.9s 1 forwards;
+  }
+
+  .card.invisible {
+    animation: disappear 1s linear 1 forwards;
+  }
+
+  .card-outer {
+    position: relative;
+    border-radius: 10px;
+    min-width: 360px;
+    min-height: 430px;
+    border: 1px solid rgb(224, 224, 224);
+    background: #fde163;
+  }
+
+  .card-outer-close {
+    opacity: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    right: -50px;
+    top: -50px;
+    height: 40px;
+    width: 40px;
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+    border-radius: 1000px;
+    border: 5px solid red;
+    background: white;
+    transform: scale(0);
+    cursor: pointer;
+  }
+
+  .card-outer-close:hover {
+    background: red;
+    color: white;
+  }
+
+  .card-outer-close.appear {
+    animation: appear 700ms ease-in-out 3s 1 forwards;
+  }
+
+  .card-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: inherit;
+    /* margin: 0; */
+    width: 320px;
+    height: 390px;
+    z-index: 1;
+  }
+
+  .card-inner__silver-icon {
+    position: absolute;
+    top: 16px;
+    left: -4px;
+    height: 20px;
+    width: 60px;
+    border-radius: 100px 70px 200px 100px;
+    box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.6);
+    background: linear-gradient(to bottom, white, silver, white, white, silver, silver, silver);
+  }
+
+  .card-inner__silver-icon::before {
+    content: '';
+    position: absolute;
+    top: 1.5px;
+    left: 1.5px;
+    height: 20px;
+    width: 59px;
+    border-radius: 80px 70px 200px 100px;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: -1;
+  }
+
+  .card-inner__silver-icon span {
+    display: inline-block;
+    font-size: .75rem;
+    margin-left: .9em;
+    font-family: "Futura Medium Condensed", sans-serif;
+    font-style: italic;
+    font-weight: bold;
+    text-shadow: 1px 0.5px 1px white, 0 0 .5em white, 0 0 0.2em white;
+    color: #333333;
+  }
+
+  .card-inner__name-hp {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin: .5em .5em 0 4em;
+  }
+
+  .card-inner__name,
+  .card-inner__hp {
+    margin: 0;
+  }
+
+  .card-inner__hp {
+    margin-left: auto;
+    margin-right: .2em;
+  }
+
+  .card-inner__hp::before {
+    content: 'HP ';
+    font-size: .8rem;
+  }
+
+  .card-inner__hp-img {
+    position: relative;
+    top: 4px;
+  }
+
+  .card-inner__hp-img_iconWhite {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: white;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+    border-radius: 100px;
+  }
+
+  .card-inner__hp-img_iconBack {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    border-radius: 100px;
+    top: 2.5px;
+    left: 2.5px;
+  }
+
+  .card-inner__hp-img_icon {
+    content: '';
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    border-radius: 100px;
+    top: 2.5px;
+    left: 2.5px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    z-index: 99;
+  }
+
+  .card-inner__img {
+    position: relative;
+    max-width: 100%;
+    max-height: 100%;
+    margin: .5em 1em;
+    z-index: 1;
+  } 
+
+  .card-inner__img-pokemon {
+    width: 100%;
+    height: 150px;
+    box-shadow: inset 0 0 6px black;
+  }
+
+  .card-inner__img-pokemon::after {
+    content: '';
+    position: absolute;
+    top: -2.5px;
+    left: -3.5px;
+    width: inherit;
+    height: inherit;
+    padding: .2em;
+    background: radial-gradient(ellipse at center, silver, white);
+    box-shadow: 0 0 2px black;
+    z-index: -1;
+  }
+
+  .card-inner__img-silver-icon {
+    position: absolute;
+    bottom: -25px;
+    left: -10px;
+    width: calc(100% + 20px);
+    height: 20px;
+    border-radius: 100px 0 200px 100px;
+    background: linear-gradient(to bottom, grey, silver, white, grey, grey, silver, silver);
+    box-shadow: 0 0 3px black;
+    z-index: 0;
+  }
+
+  .card-inner__img-silver-icon span {
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: .70rem;
+    font-family: "Futura Medium Condensed", sans-serif;
+    color: #777777;
+    z-index: 2;
+  }
+
+  .card-inner__img-silver-icon::after {
+    content: '';
+    position: absolute;
+    left: 5%;
+    width: calc(100% - 40px);
+    height: inherit;
+    border-radius: 100px 0 100px 0;
+    background: linear-gradient(to bottom, white, lightgrey, white, white, lightgrey, white);
+    box-shadow: 0 0 1px white;
+    z-index: 1;
+  }
+
+  .card-inner__bottom-silver-icon {
+    position: absolute;
+    bottom: 1em;
+    left: -.3em;
+    width: calc(100% + .6em);
+    height: 20px;
+    border-radius: 500px 300px 300px 70px;
+    background: linear-gradient(to bottom, grey, silver, white, grey, grey, silver, silver);
+    box-shadow: 0 0 3px black;
+    z-index: 0;
+  }
+
+  .card-inner__bottom-silver-icon::after {
+    content: '';
+    position: absolute;
+    left: 2%;
+    width: calc(100% - 40px);
+    height: inherit;
+    border-radius: 500px 300px 300px 70px;
+    background: linear-gradient(to bottom, white, lightgrey, white, white, lightgrey, white);
+    box-shadow: 0 0 1px white;
+    z-index: 1;
+  }
+
+  .pokeball {
+    position: absolute;
+    top: 27%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .pokeball__top {
+    position: relative;
+    margin: 0 auto;
+    width: 500px;
+    height: 250px;
+    background: red;
+    border-top-right-radius: 1000px;
+    border-top-left-radius: 1000px;
+    border: 20px solid black;
+    border-bottom: 10px solid black;
+    z-index: 2;
+  }
+
+  .pokeball__top.open {
+    animation: rotateDown 2s ease-in-out 1 forwards;
+  }
+
+  .pokeball__top.close {
+    animation: flipUp 500ms ease-in-out 1 forwards;
+  }
+
+  /* .pokeball__top::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(to bottom, silver, lightgrey, white);
+    border-radius: 1000px;
+    border: 25px solid black;
+    animation: sparkle 6s linear infinite;
+  } */
+
+  .pokeball__middle {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -40%);
+    height: 125px;
+    width: 125px;
+    border-radius: 1000px;
+    background: #001418;
+    /* background: black; */
+    /* animation: glow-outer 3s ease-in-out infinite; */
+    z-index: 3;
+  }
+
+  .pokeball__middle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 75px;
+    width: 75px;
+    background: white;
+    box-shadow: 0 0 30px white;
+    border-radius: 1000px;
+    animation: glow-inner 2.2s ease-in-out infinite;
+    z-index: 4;
+  }
+
+  .pokeball__bottom {
+    position: relative;
+    margin: 0 auto;
+    width: 500px;
+    height: 250px;
+    background: white;
+    border-bottom-right-radius: 1000px;
+    border-bottom-left-radius: 1000px;
+    border: 20px solid black;
+    border-top: 10px solid black;
+    z-index: -1;
+  }
+
+  @keyframes rotateDown {
+    0% {
+      transform: translateY(0) rotate(0);
+    }
+    33% {
+      transform: translateY(-20px) rotate(0);
+    }
+    66% {
+      transform: translateY(100%) rotate(180deg);
+    }
+    100% {
+      transform: translateY(100%) rotate(180deg);
+    }
+  }
+
+  @keyframes flipUp {
+    0% {
+      transform: translateY(100%) scaleY(1) rotate(180deg);
+    }
+    100% {
+      transform: translateY(0) scaleY(-1) rotate(180deg);
+    }
+  }
+
+  @keyframes glow-outer {
+    0% {
+      background: black
+    }
+    100% {
+      background: #001418;
+    }
+  }
+
+  @keyframes glow-inner {
+    0% {
+      box-shadow: 0 0 2px white, 0 0 4px white, 0 0 6px white, 0 0 3px #1520a6, 0 0 4px #1520a6, 0 0 7px #1520a6, 0 0 10px #1520a6, 0 0 15px #1520a6;
+      /* box-shadow: 0 0 2px white, 0 0 4px white, 0 0 6px white, 0 0 3px #01d5fb, 0 0 4px #eafbff, 0 0 7px #eafbff, 0 0 10px #eafbff, 0 0 15px #eafbff; */
+    }
+    50% {
+      box-shadow: 0 0 7px white, 0 0 8px white, 0 0 10px white, 0 0 30px #1520a6, 0 0 30px #1520a6, 0 0 15px #1520a6, 0 0 18px #1520a6, 0 0 20px #eafbff;
+      /* box-shadow: 0 0 7px white, 0 0 10px white, 0 0 15px white, 0 0 30px #1520a6, 0 0 30px #eafbff, 0 0 32px #eafbff, 0 0 42px #eafbff, 0 0 50px #eafbff; */
+    }
+    100% {
+      box-shadow: 0 0 2px white, 0 0 4px white, 0 0 6px white, 0 0 3px #1520a6, 0 0 4px #1520a6, 0 0 7px #1520a6, 0 0 10px #1520a6, 0 0 15px #1520a6;
+      /* box-shadow: 0 0 2px white, 0 0 4px white, 0 0 6px white, 0 0 3px #1520a6, 0 0 4px #eafbff, 0 0 7px #eafbff, 0 0 10px #eafbff, 0 0 15px #eafbff; */
+    }
+  }
+
+  /* @keyframes sparkle {
+    0% {
+      transform: translate(-50%, -50%) rotate(0);
+    }
+    13% {
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+    26% {
+      transform: translate(-50%, -50%) rotate(90deg);
+    }
+    39% {
+      tranform: translate(-50%, -50%) rotate(135deg);
+    }
+    42% {
+      transform: translate(-50%, -50%) rotate(180deg);
+    }
+    55% {
+      transform: translate(-50%, -50%) rotate(225deg);
+    }
+    68% {
+      transform: translate(-50%, -50%) rotate(270deg);
+    }
+    81% {
+      transform: translate(-50%, -50%) rotate(315deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  } */
+
+  @keyframes up {
+    0% {
+      transform: translateY(0) rotate(0);
+      z-index: 0;
+    }
+    33% {
+      transform: translateY(-60%) rotate(74deg);
+      z-index: 0;
+    }
+    66% {
+      transform: translateY(-60%) rotate(74deg);
+      z-index: 99;
+    }
+    100% {
+      transform: translateY(0) rotate(0);
+      z-index: 99;
+    }
+  }
+
+  @keyframes disappear {
+    0% {
+      transform: translateY(0) rotate(0);
+      opacity: 1;
+      z-index: 99;
+    }
+    33% {
+      transform: translateY(0) rotate(0);
+      opacity: 0;
+      z-index: 99;
+    }
+    66% {
+      transform: translateY(0) rotate(0);
+      opacity: 0;
+      z-index: 0;
+    }
+    100% {
+      transform: translateY(0) rotate(0);
+      opacity: 0;
+      z-index: 0;
+    }
+  }
+
+  @keyframes appear {
+    0% {
+      opacity: 0;
+      transform: scale(0);
+    }
+    50% {
+      opacity: 0;
+      transform: scale(1);
+
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @media (max-width: 530px) {
+    .card-outer {
+      transform: scale(.8);
+    }
+  }
+
+  @media (max-width: 400px) {
+    .card-outer {
+      transform: scale(.7);
+    }
+  }
+
+</style>
+  
+  <div class="container">
+    <input type="text" class="pokemon-select" placeholder="Type Pokemon Name...">
+    <div class="card">
+      <div class="card-outer">
+        <div class="card-outer-close">X</div>
+        <div class="card-inner">
+          <div class="card-inner__silver-icon"><span>PokeGen</span></div>
+          <div class="card-inner__name-hp">
+            <h2 class="card-inner__name"></h2>
+            <h2 class="card-inner__hp">0</h2>
+            <div class="card-inner__hp-img">
+              <span class="card-inner__hp-img_iconWhite"></span>
+              <span class="card-inner__hp-img_iconBack"></span>
+              <span class="card-inner__hp-img_icon"></span>
+            </div>
+          </div>
+          <div class="card-inner__img">
+            <div class="card-inner__img-pokemon"></div>
+            <div class="card-inner__img-silver-icon"><span>Gotta Catch 'Em All</span></div>
+          </div>
+          <div class="card-inner__bottom-silver-icon"></div>
+        </div>
+      </div>
+    </div>
+    <div class="pokeball">
+      <div class="pokeball__top">
+        <div class="pokeball__middle"></div>
+      </div>
+      <div class="pokeball__bottom"></div>
+    </div>
+    <!-- <a href="javascript:void(0);" class="add">ADD</a> -->
+  </div>
+
+  <script type="text/javascript" src="js/play.js"></script>
+</body>
+</html>

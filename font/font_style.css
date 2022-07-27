@@ -1,0 +1,7 @@
+@font-face {
+	font-family: 'Futura Medium Condensed';
+	src: url('futura_condensed_medium.woff2') format('woff2'),
+		url('futura_condensed_medium.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
