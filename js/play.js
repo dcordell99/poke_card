@@ -47,8 +47,22 @@ function HSLToHex(h, s, l) {
 	return '#' + r + g + b;
 }
 
+function getPokemonNames() {
+	let arrOfNames = []
+	let pokenames = fetch('https://pogoapi.net/api/v1/pokemon_names.json')
+		.then(response => response.json())
+		.then(val => {
+			let len = Object.keys(val).length;
+			for(i = 1; i < len+1; i++) {
+					arrOfNames.push(val[i]["name"])
+			}
+	});
+	return arrOfNames;
+}
+
 async function buildCard(name) {
-	card.classList.remove('invisible');
+	let cardContainer = document.querySelector('.card-container');
+	// card.classList.remove('invisible');
 
 	let nameInput = document.querySelector('.pokemon-select');
 
@@ -63,12 +77,6 @@ async function buildCard(name) {
 	const stats = pokemonData.stats;
 	const pokemonImageLink =
 		pokemonData.sprites.other['official-artwork'].front_default;
-
-	setName(name);
-	setStats(stats);
-	setTypeIcon(type);
-	setImage(pokemonImageLink);
-	setColors(type);
 
 	nameInput.value = '';
 
@@ -96,7 +104,25 @@ async function buildCard(name) {
 		</div>
 	</div>`;
 
-	window.localStorage.setItem(name, pokemonCard);
+	cardContainer.innerHTML = pokemonCard;
+
+	setName(name);
+	setStats(stats);
+	setTypeIcon(type);
+	setImage(pokemonImageLink);
+	setColors(type);
+
+	let pokeArr = []
+
+	pokeArr.push(`imageURL: ${pokemonImageLink}, type: ${type}`);
+	
+	stats.forEach((stat, i) => { 
+		let name = stat.stat.name;
+		let baseStat = stat.base_stat;
+		pokeArr.push(`${name}: ${baseStat}`);
+	});
+
+	window.localStorage.setItem(name, [...pokeArr] );
 }
 
 function setName(name) {
@@ -200,26 +226,39 @@ function setColors(type) {
 	iconBack.style.background = `linear-gradient(to bottom right, ${colorFull}, ${colorMid}, ${colorLow}`;
 }
 
-let card = document.querySelector('.card');
-let cardClose = document.querySelector('.card-outer-close');
 let pokeball = document.querySelector('.pokeball');
 let pokeballTop = document.querySelector('.pokeball__top');
-let add = document.querySelector('.add');
+// let add = document.querySelector('.add');
 
-pokeball.addEventListener('click', function(e) {
-	pokeballTop.classList.add('open');
+let pokemonNames = getPokemonNames();
+
+pokeball.addEventListener('click', async function(e) {
+	let pokemonInputField = document.querySelector('.pokemon-select').value;
+
+	if(pokemonInputField == '') {
+		return;
+	}
+	
+	await buildCard('pikachu');
+
+	await pokeballTop.classList.add('open');
 	pokeballTop.classList.remove('close');
-	card.classList.add('visible');
+
+	let cardContainer = document.querySelector('.card-container');
+	let cardClose = document.querySelector('.card-outer-close');
+
+	await cardContainer.classList.remove('invisible');
+	cardContainer.classList.add('visible');
 	cardClose.classList.add('appear');
-	buildCard();
+
+	cardClose.addEventListener('click', async function(e) {
+		await cardContainer.classList.add('invisible');
+		cardContainer.classList.remove('visible');
+		cardClose.classList.remove('appear');
+
+		await pokeballTop.classList.add('close');
+		pokeballTop.classList.remove('open');
+	});
 });
 
-cardClose.addEventListener('click', function(e) {
-	card.classList.remove('visible');
-	card.classList.add('invisible');
-	cardClose.classList.remove('appear');
-	pokeballTop.classList.add('close');
-	pokeballTop.classList.remove('open');
-});
-
-add.addEventListener('click', function() {});
+// add.addEventListener('click', function() {});
