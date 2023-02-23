@@ -64,7 +64,7 @@ async function buildCard(name) {
 	let cardContainer = document.querySelector('.card-container');
 	// card.classList.remove('invisible');
 
-	let nameInput = document.querySelector('.pokemon-select');
+	let nameInput = document.querySelector('.pokemon-select-input');
 
 	name = nameInput.value.toLowerCase();
 
@@ -226,39 +226,82 @@ function setColors(type) {
 	iconBack.style.background = `linear-gradient(to bottom right, ${colorFull}, ${colorMid}, ${colorLow}`;
 }
 
+function autoComplete(input) {
+	let pokemonSelectContainer = document.querySelector('.pokemon-select')
+	let cardContainer = document.querySelector('.card-container')
+	let pokemonNames = getPokemonNames();
+	input.addEventListener('input', function() {
+		let len = this.value.length;
+		closeList();
+
+		if(!this.value) return;
+
+		suggestions = document.createElement('div');
+		suggestions.setAttribute('class', 'suggestions');
+		pokemonSelectContainer.appendChild(suggestions);
+
+		pokemonNames.forEach(name => {
+			if(name.toLowerCase().slice(0, len) == this.value.toLowerCase()) {
+				suggestion = document.createElement('div');
+				suggestion.setAttribute('class', 'suggestion');
+				suggestion.innerHTML = name;
+				suggestion.style.cursor = 'pointer';
+
+				suggestions.appendChild(suggestion);
+
+				suggestion.addEventListener('click', (e) => {
+					input.value = e.target.textContent;
+					closeList();
+				});
+			}
+		});
+	});
+}
+
+function closeList() {
+	let suggestions = document.querySelector('.suggestions');
+	if (suggestions) {
+		suggestions.remove();
+	}
+}
+
+autoComplete(document.querySelector('.pokemon-select-input'));
+
 let pokeball = document.querySelector('.pokeball');
 let pokeballTop = document.querySelector('.pokeball__top');
-// let add = document.querySelector('.add');
 
-let pokemonNames = getPokemonNames();
+// let pokemonNames = getPokemonNames();
 
 pokeball.addEventListener('click', async function(e) {
-	let pokemonInputField = document.querySelector('.pokemon-select').value;
+	let pokemonInput = document.querySelector('.pokemon-select-input')
+	let pokemonInputValue = pokemonInput.value;
 
-	if(pokemonInputField == '') {
+	if(pokemonInputValue == '') {
 		return;
 	}
+
+	pokemonInput.classList.toggle('hide');
 	
 	await buildCard('pikachu');
 
-	await pokeballTop.classList.add('open');
+	pokeballTop.classList.add('open');
 	pokeballTop.classList.remove('close');
 
 	let cardContainer = document.querySelector('.card-container');
 	let cardClose = document.querySelector('.card-outer-close');
 
-	await cardContainer.classList.remove('invisible');
+	cardContainer.classList.remove('invisible');
 	cardContainer.classList.add('visible');
 	cardClose.classList.add('appear');
 
 	cardClose.addEventListener('click', async function(e) {
-		await cardContainer.classList.add('invisible');
+		cardContainer.classList.add('invisible');
 		cardContainer.classList.remove('visible');
 		cardClose.classList.remove('appear');
 
-		await pokeballTop.classList.add('close');
+		pokeballTop.classList.add('close');
 		pokeballTop.classList.remove('open');
+
+		setTimeout(() => { pokemonInput.classList.toggle('hide') },2300);
 	});
 });
-
-// add.addEventListener('click', function() {});
