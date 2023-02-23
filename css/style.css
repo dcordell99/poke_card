@@ -41,10 +41,10 @@
   .suggestions {
     position: absolute;
     top: 58px;
-    width: 384px;
-    max-height: 300px;
+    width: 385px;
+    max-height: 250px;
     overflow: scroll;
-    padding: .5em 2em;
+    padding: .8em 2em .5em 2em;
     background: #f7f7f7;
     border: 1px solid rgba(0,0,0,.8);
     border-radius: 5px;

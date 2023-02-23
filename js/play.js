@@ -255,6 +255,7 @@ function autoComplete(input) {
 				});
 			}
 		});
+		if(suggestions.childElementCount < 1) closeList();
 	});
 }
 
