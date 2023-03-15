@@ -12,6 +12,140 @@
     overflow: hidden;
   }
 
+  .hide {
+    opacity: 0;
+  }
+
+  .collection-logo {
+    display: block;
+    margin: 0 auto;
+    width: 200px;
+    /* text-align: center; */
+  }
+
+  .mydeck-container {
+    /* display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap; */
+    height: 700px;
+    max-height: 700px;
+    width: 700px;
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(10px);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -45%) scale(0);
+    border: 1px solid black;
+    box-shadow: 0 0 10px grey;
+    border-radius: 10px;
+    padding: 0 2em 3em 2em;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    z-index: 1;
+    transition: 500ms transform;
+  }
+
+  .mydeck {
+    /* position: fixed; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    max-height: 700px;
+    width: 700px!important;
+  }
+
+  .mydeck-container div {
+    position: relative;
+    /* margin-top: 3em; */
+    width: 120px;
+    height: 120px;
+  }
+
+  .mydeck-container .collection-logo {
+    justify-self: center;
+    align-self: center;
+  }
+
+  .mydeck-container .pokemon-image {
+    position: absolute;
+    /* width: 120px;
+    height: 120px; */
+    width: 100%;
+    height: 100%;
+    opacity: .5;
+    filter: blur(2px);
+    transition: 300ms all;
+  }
+
+  .mydeck-container div:hover > img {
+    transform: translate(-15%, -15%);
+    filter: blur(0);
+    height: 200px;
+    width: 200px;
+    opacity: 1;
+  }
+
+  .showdeck-top {
+    animation: 300ms openTop ease-in-out 1 forwards;
+  }
+
+  .showdeck-bottom {
+    animation: 300ms openBottom ease-in-out 1 forwards;
+  }
+
+  .showdeck {
+    animation: 400ms showDeck ease-in-out 400ms 1 forwards;
+  }
+
+  /* .viewcollection {
+    text-align: center;
+    margin-top: 1em;
+  }
+
+  .viewcollection-button {
+    display: inline;
+    background: #ff8000;
+    color: black;
+    text-decoration: none;
+    padding: .6em 1em;
+    border-radius: 6px;
+  } */
+
+  .viewcollection {
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    line-height: 2;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: 470ms ease-in-out transform;
+  }
+
+  .viewcollection.active {
+    transform: translate(-50%, 0);
+  }
+
+  .viewcollection-button {
+    display: inline;
+    background: #ff8000;
+    color: black;
+    text-decoration: none;
+    padding: .6em 1em;
+    border-radius: 6px;
+    color: inherit;
+  }
+
+  .viewcollection:hover > .viewcollection-button {
+    box-shadow: 0 0 5px grey;
+  }
+
   .container {
     /* height: 90vh; */
   }
@@ -55,6 +189,10 @@
     letter-spacing: 2px;
   }
 
+  .suggestion.active {
+    color: red;
+  }
+
   .suggestion:hover {
     color: red;
   }
@@ -66,7 +204,8 @@
 
   .card-container {
     position: relative;
-    top: 6em;
+    /* top: 6em; */
+    top: 4.9em;
     display: flex;
     justify-content: center;
     z-index: -2;
@@ -311,7 +450,8 @@
   .pokeball {
     position: absolute;
     /* top: 27%; */
-    top: 10em;
+    /* top: 10em; */
+    top: 9em;
     left: 50%;
     transform: translateX(-50%);
   }
@@ -408,6 +548,36 @@
     }
     100% {
       transform: translateY(0) rotate(0);
+    }
+  }
+
+  @keyframes openTop {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-3.5em);
+    }
+  }
+
+  @keyframes openBottom {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(3.5em);
+    }
+  }
+
+  @keyframes showDeck {
+    0% {
+      transform: translate(-50%, -45%) scaleY(.06) scaleX(.06) rotate(0deg);
+    }
+    50% {
+      transform: translate(-50%, -45%) scaleY(1) scaleX(1) rotate(10000deg);
+    }
+    100% {
+      transform: translate(-50%, -45%) scaleY(1) scaleX(1) rotate(0);
     }
   }
 
