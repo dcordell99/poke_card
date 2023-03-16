@@ -37,17 +37,51 @@ function showOrHideCollectionBtn() {
   });
 }
 
+function deletePokemon() {
+	let storedCollection = window.localStorage.getItem('pokemons').split('|');
+	let newCollection = [];
+	let name = this.parentNode.parentNode.getAttribute('data-name');
+	
+	storedCollection.forEach(item => {
+		item = JSON.parse(item);
+		if (item.name !== name) {
+			newCollection.push(item);
+		}
+	});
+
+	if(newCollection.length > 0) {
+		window.localStorage.setItem('pokemons', JSON.stringify(newCollection));
+	} else {
+		window.localStorage.removeItem('pokemons');
+	}
+
+	this.parentNode.parentNode.remove();
+}
+
 function buildCollection() {
 	if(hasPokemons()) {
 		let storedCollection = window.localStorage.getItem('pokemons').split('|');
-		storedCollection.forEach(item => {
-			let div = document.createElement('div');
+		storedCollection.forEach((item, i) => {
+			item = JSON.parse(item);
+			let pokeContainer = document.createElement('div');
+			let pokeImgWrapper = document.createElement('div');
 			let pokeImg = document.createElement('img');
+			let closeIcon = document.createElement('div');
+
+			pokeContainer.classList.add('poke-container');
+			pokeContainer.setAttribute('data-name', item.name);
+			pokeImgWrapper.classList.add('poke-image-wrapper')
 			pokeImg.classList.add('pokemon-image')
-			pokeImg.setAttribute('src', JSON.parse(item).imageURL);
+			pokeImg.setAttribute('src', item.imageURL);
+			closeIcon.classList.add('poke-close-icon');
+			closeIcon.textContent = 'x'
 		
-			div.appendChild(pokeImg);
-			myCollection.appendChild(div);
+			pokeImgWrapper.appendChild(closeIcon);
+			pokeImgWrapper.appendChild(pokeImg);
+			pokeContainer.appendChild(pokeImgWrapper)
+			myCollection.appendChild(pokeContainer);
+
+			closeIcon.addEventListener('click', deletePokemon);
 		});
 	}
 }
@@ -360,13 +394,33 @@ function addToCollection() {
 			}
 		});
 	}
-	let div = document.createElement('div');
-	let pokeImg = document.createElement('img');
-	pokeImg.setAttribute('src', pokeObj.imageURL);
-	pokeImg.classList.add('pokemon-image')
+	// let pokeContainer = document.createElement('div');
+	// let pokeImg = document.createElement('img');
+	// pokeImg.setAttribute('src', pokeObj.imageURL);
+	// pokeImg.classList.add('pokemon-image')
 
-	div.appendChild(pokeImg);
-	myCollection.appendChild(div);
+	// pokeContainer.appendChild(pokeImg);
+	// myCollection.appendChild(pokeContainer);
+
+	let pokeContainer = document.createElement('div');
+	let pokeImgWrapper = document.createElement('div');
+	let pokeImg = document.createElement('img');
+	let closeIcon = document.createElement('div');
+
+	pokeContainer.classList.add('poke-container');
+	pokeContainer.setAttribute('data-name', pokeObj.name);
+	pokeImgWrapper.classList.add('poke-image-wrapper')
+	pokeImg.classList.add('pokemon-image')
+	pokeImg.setAttribute('src', pokeObj.imageURL);
+	closeIcon.classList.add('poke-close-icon');
+	closeIcon.textContent = 'x'
+
+	pokeImgWrapper.appendChild(closeIcon);
+	pokeImgWrapper.appendChild(pokeImg);
+	pokeContainer.appendChild(pokeImgWrapper)
+	myCollection.appendChild(pokeContainer);
+
+	closeIcon.addEventListener('click', deletePokemon);
 }
 
 
