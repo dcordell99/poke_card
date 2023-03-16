@@ -2,6 +2,7 @@ let currPokemon = {}
 let pokemonInput = document.querySelector('.pokemon-select-input');
 let pokeball = document.querySelector('.pokeball');
 let pokeballTop = document.querySelector('.pokeball__top');
+let pokeballMiddle = document.querySelector('.pokeball__middle');
 let cardContainer = document.querySelector('.card-container');
 let viewCollectionBtn = document.querySelector('.viewcollection');
 let myCollectionContainer = document.querySelector('.mydeck-container');
@@ -39,18 +40,22 @@ function showOrHideCollectionBtn() {
 
 function deletePokemon() {
 	let storedCollection = window.localStorage.getItem('pokemons').split('|');
-	let newCollection = [];
+
+	let newCollection = '';
 	let name = this.parentNode.parentNode.getAttribute('data-name');
 	
 	storedCollection.forEach(item => {
-		item = JSON.parse(item);
-		if (item.name !== name) {
-			newCollection.push(item);
+		if (JSON.parse(item).name !== name) {
+			if (newCollection !== '') {
+				newCollection = newCollection + '|' + item;
+			} else {
+				newCollection = newCollection + item;
+			}
 		}
 	});
 
 	if(newCollection.length > 0) {
-		window.localStorage.setItem('pokemons', JSON.stringify(newCollection));
+		window.localStorage.setItem('pokemons', newCollection);
 	} else {
 		window.localStorage.removeItem('pokemons');
 	}
@@ -74,7 +79,7 @@ function buildCollection() {
 			pokeImg.classList.add('pokemon-image')
 			pokeImg.setAttribute('src', item.imageURL);
 			closeIcon.classList.add('poke-close-icon');
-			closeIcon.textContent = 'x'
+			closeIcon.textContent = 'x';
 		
 			pokeImgWrapper.appendChild(closeIcon);
 			pokeImgWrapper.appendChild(pokeImg);
@@ -339,6 +344,7 @@ function autoComplete(input) {
 
 				suggestion.addEventListener('click', (e) => {
 					input.value = e.target.textContent;
+					pokeballMiddle.classList.toggle('active');
 					closeList();
 				});
 			}
@@ -372,7 +378,8 @@ function addToCollection() {
 	let currStorage = window.localStorage.getItem('pokemons');
 
 	if(currStorage == null) {
-		window.localStorage.setItem('pokemons', JSON.stringify(pokeObj));
+		// window.localStorage.setItem('pokemons', JSON.stringify(pokeObj));
+		addToDeck('first');
 	} else {
 		let arrayOfPokemons = currStorage.split('|');
 		let names = [];
@@ -389,10 +396,40 @@ function addToCollection() {
 					}
 				})
 				if (!match) {
-					window.localStorage.setItem('pokemons', currStorage + '|' + JSON.stringify(pokeObj));
+					// window.localStorage.setItem('pokemons', currStorage + '|' + JSON.stringify(pokeObj));
+					addToDeck('additional');
 				}
 			}
 		});
+	}
+
+	function addToDeck(type) {
+		console.log(currStorage, pokeObj);
+		if (type === 'first') {
+			window.localStorage.setItem('pokemons', JSON.stringify(pokeObj));
+		} else if (type === 'additional') {
+			window.localStorage.setItem('pokemons', currStorage + '|' + JSON.stringify(pokeObj));
+		}
+
+		let pokeContainer = document.createElement('div');
+		let pokeImgWrapper = document.createElement('div');
+		let pokeImg = document.createElement('img');
+		let closeIcon = document.createElement('div');
+
+		pokeContainer.classList.add('poke-container');
+		pokeContainer.setAttribute('data-name', pokeObj.name);
+		pokeImgWrapper.classList.add('poke-image-wrapper')
+		pokeImg.classList.add('pokemon-image')
+		pokeImg.setAttribute('src', pokeObj.imageURL);
+		closeIcon.classList.add('poke-close-icon');
+		closeIcon.textContent = 'x'
+
+		pokeImgWrapper.appendChild(closeIcon);
+		pokeImgWrapper.appendChild(pokeImg);
+		pokeContainer.appendChild(pokeImgWrapper)
+		myCollection.appendChild(pokeContainer);
+
+		closeIcon.addEventListener('click', deletePokemon);
 	}
 	// let pokeContainer = document.createElement('div');
 	// let pokeImg = document.createElement('img');
@@ -402,25 +439,25 @@ function addToCollection() {
 	// pokeContainer.appendChild(pokeImg);
 	// myCollection.appendChild(pokeContainer);
 
-	let pokeContainer = document.createElement('div');
-	let pokeImgWrapper = document.createElement('div');
-	let pokeImg = document.createElement('img');
-	let closeIcon = document.createElement('div');
+	// let pokeContainer = document.createElement('div');
+	// let pokeImgWrapper = document.createElement('div');
+	// let pokeImg = document.createElement('img');
+	// let closeIcon = document.createElement('div');
 
-	pokeContainer.classList.add('poke-container');
-	pokeContainer.setAttribute('data-name', pokeObj.name);
-	pokeImgWrapper.classList.add('poke-image-wrapper')
-	pokeImg.classList.add('pokemon-image')
-	pokeImg.setAttribute('src', pokeObj.imageURL);
-	closeIcon.classList.add('poke-close-icon');
-	closeIcon.textContent = 'x'
+	// pokeContainer.classList.add('poke-container');
+	// pokeContainer.setAttribute('data-name', pokeObj.name);
+	// pokeImgWrapper.classList.add('poke-image-wrapper')
+	// pokeImg.classList.add('pokemon-image')
+	// pokeImg.setAttribute('src', pokeObj.imageURL);
+	// closeIcon.classList.add('poke-close-icon');
+	// closeIcon.textContent = 'x'
 
-	pokeImgWrapper.appendChild(closeIcon);
-	pokeImgWrapper.appendChild(pokeImg);
-	pokeContainer.appendChild(pokeImgWrapper)
-	myCollection.appendChild(pokeContainer);
+	// pokeImgWrapper.appendChild(closeIcon);
+	// pokeImgWrapper.appendChild(pokeImg);
+	// pokeContainer.appendChild(pokeImgWrapper)
+	// myCollection.appendChild(pokeContainer);
 
-	closeIcon.addEventListener('click', deletePokemon);
+	// closeIcon.addEventListener('click', deletePokemon);
 }
 
 
@@ -464,6 +501,8 @@ async function populateCard() {
 
 		pokeballTop.classList.add('close');
 		pokeballTop.classList.remove('open');
+
+		pokeballMiddle.classList.toggle('active');
 
 		setTimeout(() => { 
 			pokemonInput.classList.toggle('hide') 

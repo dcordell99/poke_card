@@ -531,6 +531,10 @@
     z-index: 3;
   }
 
+  .pokeball__middle.active::after {
+    animation: glow-inner 2.2s ease-out infinite;
+  }
+
   .pokeball__middle::after {
     content: '';
     position: absolute;
