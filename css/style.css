@@ -79,7 +79,7 @@
     height: 100%;
     opacity: .5;
     filter: blur(2px);
-    transition: 300ms all;
+    transition: 100ms all;
   }
 
   .mydeck-container div:hover > img {
